@@ -27,7 +27,7 @@ namespace Dzonny.ILProj
     /// Creating project extensions or project types does not actually require a VSPackage.
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true)]
-    [Description("A custom project type based on CPS")]
+    [Description("CIL project system")]
     [Guid(VsPackage.PackageGuid)]
     [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids80.SolutionExists)]
     [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids80.NoSolution )]
