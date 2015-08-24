@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+    <Metadata>
+        <Identity Id="ILProj.ProjectType..42d3ff42-1612-4f1a-9e53-23cb72f33ae8" Version="0.0" Language="en-US" Publisher="ILProj.ProjectType" />
+        <DisplayName>ILProj VSIX</DisplayName>
+        <Description xml:space="preserve">A template for creating a CIL assembler projects. Allows to compile CIL (MSIL) assembler directly form Visual Studio.</Description>
+        <MoreInfo>https://github.com/DzonnyDZ/ILProj</MoreInfo>
+        <License>..\LICENSE</License>
+        <Icon>ILProj.ico</Icon>
+        <PreviewImage>Screenshot.png</PreviewImage>
+        <Tags>CIL, MSIL, assembly, intermediate language, assembler</Tags>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="14.0" />
+    </Installation>
+    <Dependencies>
+    </Dependencies>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="ILProj.ProjectType" Path="|ILProj.ProjectType|"/>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="ILProj.ProjectType" Path="|ILProj.ProjectType;PkgdefProjectOutputGroup|" />
+        <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="ILProj.ProjectTemplate" d:TargetPath="|ILProj.ProjectTemplate;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
+        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="ILProj.Tasks" Path="|ILProj.Tasks|" AssemblyName="|ILProj.Tasks;AssemblyName|" />
+    </Assets>
+</PackageManifest>
