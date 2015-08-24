@@ -7,8 +7,8 @@
 
     <Import Project="$(CustomProjectExtensionsPath)CustomProject.Default.props" />
     <PropertyGroup>
-        <OutputType>exe</OutputType>
-        <TargetExtension Condition="'$(OutputType)'=='Library'">.dll</TargetExtension>
+        <OutputType>EXE</OutputType>
+        <TargetExtension Condition="'$(OutputType)'=='DLL'">.dll</TargetExtension>
         <TargetExtension Condition="'$(TargetExtension)'==''">.exe</TargetExtension>
         <OutputName>$(AssemblyName)$(TargetExtension)</OutputName>
         <TargetPath>$(OutputPath)$(OutputName)</TargetPath>
