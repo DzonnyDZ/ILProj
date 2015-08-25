@@ -44,9 +44,15 @@ namespace Dzonny.ILProj
         [DefaultValue(false)]
         public bool AppContainer { get; set; }
 
+        private DebugOption debug;
         /// <summary>Gets or sets option of generationg debugging information</summary>
+        /// <value>One of <see cref="DebugOption"/> values</value>
         [DefaultValue(DebugOption.NoDebug)]
-        public DebugOption Debug { get; set; }
+        public string Debug
+        {
+            get { return debug.ToString(); }
+            set { debug = (DebugOption)Enum.Parse(typeof(DebugOption), value, true); }
+        }
 
         /// <summary>Gets or sets value indicating if long instructions are optimized to short ones</summary>
         [DefaultValue(false)]
@@ -163,8 +169,8 @@ namespace Dzonny.ILProj
 
                 if (AppContainer) cmd.Append("/APPCONTAINER ");
 
-                if (Debug == DebugOption.Debug) cmd.Append("/DEBUG ");
-                else if (Debug != DebugOption.NoDebug) cmd.Append($"/DEBUG={Debug.ToString().ToUpperInvariant()} ");
+                if (debug == DebugOption.Debug) cmd.Append("/DEBUG ");
+                else if (debug != DebugOption.NoDebug) cmd.Append($"/DEBUG={debug.ToString().ToUpperInvariant()} ");
 
                 if (Optimize) cmd.Append("/OPTIMIZE ");
 
@@ -220,11 +226,29 @@ namespace Dzonny.ILProj
                     foreach (var δ in EditAndContinueDeltas)
                         cmd.Append($"/ENC=\"{δ}\" ");
 
-                if(Files !=null )
+                if (Files != null)
                     foreach (var file in Files)
                         cmd.Append($"\"{file}\" ");
 
                 ilasm.StartInfo.Arguments = cmd.ToString();
+
+                Log.LogCommandLine(ilasm.StartInfo.FileName + " " + ilasm.StartInfo.Arguments);
+                Log.LogMessage($"Running {ilasm.StartInfo.FileName} {ilasm.StartInfo.Arguments}");
+
+                ilasm.StartInfo.RedirectStandardError = true;
+                ilasm.StartInfo.RedirectStandardOutput = true;
+                ilasm.ErrorDataReceived += (sender, e) => { if (e.Data != null) Log.LogError(e.Data); };
+                ilasm.OutputDataReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        if (e.Data.IndexOf("error", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                            Log.LogError(e.Data);
+                        else if (e.Data.IndexOf("warning", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                            Log.LogWarning(e.Data);
+                        else Log.LogMessage(e.Data);
+                    }
+                };
                 ilasm.Start();
                 ilasm.BeginErrorReadLine();
                 ilasm.BeginOutputReadLine();

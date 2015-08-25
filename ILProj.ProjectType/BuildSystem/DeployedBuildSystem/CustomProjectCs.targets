@@ -3,6 +3,7 @@
     <Import Project="$(MSBuildThisFileDirectory)\CustomProject.targets" />
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <UsingTask TaskName="Dzonny.ILProj.ILAsm" AssemblyFile="$(MSBuildThisFileDirectory)Dzonny.ILProj.Tasks.dll"/>
+    <UsingTask TaskName="Dzonny.ILProj.ILReferences" AssemblyFile="$(MSBuildThisFileDirectory)Dzonny.ILProj.Tasks.dll"/>
 
     <Target Name="Rebuild">
         <CallTarget Targets="Build"/>
@@ -11,7 +12,18 @@
         <GetFrameworkPath>
             <Output TaskParameter="Path" PropertyName="FrameworkPath" />
         </GetFrameworkPath>
-        <ILAsm Output="$(TargetPath)" Files="@(Compile)" Target="$(OutputType)" TargetCpu="$(Platform)" ILAsmExe="$(FrameworkPath)\ilasm.exe" Debug="$(Debug)" 
+        <ILReferences References="@(Reference)" Target="$(IntermediateOutputPath)references.il"/>
+        <PropertyGroup>
+            <TargetCpu Condition="'$(Platfrom)'=='AnyCPU'"/>
+            <TargetCpu Condition="'$(Platform)'=='x64'">X64</TargetCpu>
+            <TargetCpu Condition="'$(Platform)'=='x86'">X86</TargetCpu>
+            <TargetCpu Condition="'$(Platform)'=='ARM'">ARM</TargetCpu>
+        </PropertyGroup>
+        <ItemGroup>
+            <ilasminput Include="@(Compile)"/>
+            <ilasminput Include="$(IntermediateOutputPath)references.il"/>
+        </ItemGroup>
+        <ILAsm Output="$(TargetPath)" Files="@(ilasminput)" Target="$(OutputType)" TargetCpu="$(TargetCpu)" ILAsmExe="$(FrameworkPath)\ilasm.exe" Debug="$(Debug)" 
                Quiet="$(Quiet)" NoAutoInherit="$(NoAutoInherit)" Pdb="$(Pdb)" AppContainer="$(AppContainer)" Optimize="$(Optimize)" Fold="$(Fold)" Clock="$(Clock)" Resources="@(EmbeddedResource)"
                Key="$(Key)" SubSystem="$(SubSystem)" Flags="$(Flags)" Alignment="$(Alignment)" Base="$(Base)" Stack="$(Stack)" MetadataVersion="$(MetadataVersion)" MetadataStreamVersion="$(MetadataStreamVersion)"
                PE64="$(PE64)" HighEntropyVirtualAddress="$(HighEntropyVirtualAddress)" NoCorStub="$(NoCorStub)" StripRelocations="$(StripRelocations)" Prefer32Bit="$(Prefer32Bit)"

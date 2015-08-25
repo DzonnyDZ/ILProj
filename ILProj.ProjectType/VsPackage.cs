@@ -13,16 +13,15 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Threading;
+using Task = System.Threading.Tasks.Task;
 
 namespace Dzonny.ILProj
 {
 
-    /// <summary>
-    /// This class implements the package exposed by this assembly.
-    /// </summary>
+    /// <summary>This class implements the package exposed by this assembly.</summary>
     /// <remarks>
     /// This package is required if you want to define adds custom commands (ctmenu)
     /// or localized resources for the strings that appear in the New Project and Open Project dialogs.
@@ -30,9 +29,9 @@ namespace Dzonny.ILProj
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [Description("CIL project system")]
-    [Guid(VsPackage.PackageGuid)]
-    [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids80.SolutionExists)]
-    [ProvideAutoLoad(Microsoft.VisualStudio.Shell.Interop.UIContextGuids80.NoSolution)]
+    [Guid(PackageGuid)]
+    [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
+    [ProvideAutoLoad(UIContextGuids80.NoSolution)]
     public sealed class VsPackage : Package
     {
         /// <summary>Type initializer - initializes the class <see cref="VsPackage"/></summary>
@@ -53,15 +52,15 @@ namespace Dzonny.ILProj
 
         /// <summary>In case theer was error deployng local custom project system, reports the issue to user assynchronously</summary>
         /// <returns>Task to await the async operation</returns>
-        private async System.Threading.Tasks.Task OnInit()
+        private async Task OnInit()
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             IVsOutputWindow outputWindow = GetService(typeof(SVsOutputWindow)) as IVsOutputWindow;
             if (outputWindow != null)
             {
-                Guid guidGeneral = Microsoft.VisualStudio.VSConstants.GUID_OutWindowGeneralPane;
+                Guid guidGeneral = VSConstants.GUID_OutWindowGeneralPane;
                 IVsOutputWindowPane windowPane;
-                if (Microsoft.VisualStudio.ErrorHandler.Failed(outputWindow.GetPane(ref guidGeneral, out windowPane)) && (Microsoft.VisualStudio.ErrorHandler.Succeeded(outputWindow.CreatePane(ref guidGeneral, null, 1, 1))))
+                if (ErrorHandler.Failed(outputWindow.GetPane(ref guidGeneral, out windowPane)) && (ErrorHandler.Succeeded(outputWindow.CreatePane(ref guidGeneral, null, 1, 1))))
                     outputWindow.GetPane(ref guidGeneral, out windowPane);
 
                 string desc = ((DescriptionAttribute)GetType().GetCustomAttributes(typeof(DescriptionAttribute), true).First()).Description;
