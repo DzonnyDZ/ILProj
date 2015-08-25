@@ -18,3 +18,7 @@ This is sister project of JScript.NET and coevolution is expected.
 * No editor support (colorization, intelli sense)
 * Impossible to add new files to project via right-click | Add | New item
 ** Copy-paste the default item instead, or create the item outside of Visual Studio and then include it in a project.
+
+Install from VS gallery https://visualstudiogallery.msdn.microsoft.com/c931673f-3f9d-4bc9-98e9-c9c1f65f929c or directly from VS.
+
+This is sister project of JScript.NET  https://github.com/DzonnyDZ/JScript.NET
