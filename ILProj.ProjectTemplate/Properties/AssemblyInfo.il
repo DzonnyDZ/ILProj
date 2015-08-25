@@ -1,7 +1,6 @@
 .assembly ConsoleApplication1
 {
     .ver 1:0:0:0
-    .hash algorithm 0x00008004
     .custom instance void [mscorlib]System.Reflection.AssemblyTitleAttribute::.ctor(string) = { string('') }
     .custom instance void [mscorlib]System.Reflection.AssemblyDescriptionAttribute::.ctor(string) = { string('') }
     .custom instance void [mscorlib]System.Reflection.AssemblyConfigurationAttribute::.ctor(string) = { string('') }
