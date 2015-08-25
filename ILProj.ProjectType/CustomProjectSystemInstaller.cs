@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO.Compression;
+using System.Security;
 using IO = System.IO;
 
 namespace Dzonny.ILProj
@@ -15,11 +16,45 @@ namespace Dzonny.ILProj
 
         /// <summary>Determines if it is necessary to install custom project file system locally</summary>
         /// <returns>True if custom project system is not installed locally or if it has to be upgraded; false if locally installed custom project system is up to date.</returns>
+        /// <exception cref="IO.FileNotFoundException">File where zipped custom project system is supposed to be stored is not found</exception>
+        /// <exception cref="IO.PathTooLongException">The path to file where zipped custom project file system is supposed to be stored exeeds system-define maximum path length.</exception>
+        /// <exception cref="IO.IOException">An I/O error occurred while opening ZIP file with zipped custom project system</exception>
+        /// <exception cref="UnauthorizedAccessException">
+        ///     The caller does not have the required permission to access path where zipped custom project system is supposed to be stored. -or-
+        ///     Reading of version file is not supported on the current platform. -or-
+        ///     Version file is missing in local custom project system, but there is a directory instead with same path. -or-
+        ///     The caller does not have the required permission to read version file from local custom project system
+        /// </exception>
+        /// <exception cref="IO.InvalidDataException">File where zipped custom project system is stored is corrupted (cannot be interpreted as ZIP file)</exception>
+        /// <exception cref="SecurityException">The caller does not have the required permission to read version file in local custom project system</exception>
+        /// <exception cref="NotSupportedException">The ZIP archive whre zipped custom project system is stored does not support reading.</exception>
+        /// <exception cref="IO.InvalidDataException">
+        ///     The ZIP archive where zipped custom project system is stored is corrupt, and its entries cannot be retrieved. -or-
+        ///     The entry "version.txt" is either missing from the archive or is corrupt and cannot be read. -or-
+        ///     The entry "version.txt" has been compressed by using a compression method that is not supported.
+        /// </exception>
+        /// <exception cref="FormatException">
+        ///     Version text stored in "version.txt" entry of ZIP file containing zipped custom project system has fewer than two or more than four version components. -or-
+        ///     At least one component in of version text is not an integer.
+        /// </exception>
+        /// <exception cref="OverflowException">
+        ///     At least one component in version text stored in "version.txt" entry of ZIP file containing zipped custom project system represents a number that is greater than <see cref="Int32.MaxValue"/>.
+        /// </exception>
         public static bool NeedsDeployment()
         {
+            if (!IO.Directory.Exists(LocalCustomProjectSystemPath)) return true;
             using (var z = new ZippedCustomProjectSystem(ZippedCustomProjectSystemPath))
             {
-                return !IO.Directory.Exists(LocalCustomProjectSystemPath) || new LocalCustomProjectSystem(LocalCustomProjectSystemPath).GetVersion() < z.GetVersion();
+                Version localVersion;
+                try
+                {
+                    localVersion = new LocalCustomProjectSystem(LocalCustomProjectSystemPath).GetVersion();
+                }
+                catch (Exception ex) when (ex is IO.IOException || ex is FormatException || ex is OverflowException)
+                {
+                    return true;
+                }
+                return localVersion < z.GetVersion();
             }
         }
 
@@ -66,9 +101,34 @@ namespace Dzonny.ILProj
 
         /// <summary>Gets version of the custom project system</summary>
         /// <returns>Version of custom project system</returns>
+        /// <exception cref="IO.PathTooLongException">The path in <see cref="Folder"/> is too long</exception>
+        /// <exception cref="IO.DirectoryNotFoundException">The path in <see cref="Folder"/> is invalid (for example, it is on an unmapped drive).</exception>
+        /// <exception cref="IO.IOException">An I/O error occurred while opening the version file.</exception>
+        /// <exception cref="UnauthorizedAccessException">
+        ///     Reading of version file is not supported on the current platform. -or-
+        ///     Version file is missing in local custom project system, but there is a directory instead with same path. -or-
+        ///     The caller does not have the required permission to read version file from local custom project system
+        /// </exception>
+        /// <exception cref="IO.FileNotFoundException">The version file is not found in local custom project file system</exception>
+        /// <exception cref="SecurityException">The caller does not have the required permission to read version file in local custom project system</exception>
+        /// <exception cref="FormatException">
+        ///     Text stored in version file of local custom project system has fewer than two or more than four version components. -or-
+        ///     At least one component in version file of local custom project system is less than zero. -or-
+        ///     At least one component in version file of local custom project system is not an integer.
+        /// </exception>
+        /// <exception cref="OverflowException">At least one component in version file of local custom project system represents a number that is greater than <see cref="Int32.MaxValue"/>.</exception>
+
         public override Version GetVersion()
         {
-            return Version.Parse(IO.File.ReadAllText(IO.Path.Combine(Folder, "version.txt")));
+            string text = IO.File.ReadAllText(IO.Path.Combine(Folder, "version.txt"));
+            try
+            {
+                return Version.Parse(text);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new FormatException(ex.Message, ex);
+            }
         }
     }
 
@@ -117,6 +177,19 @@ namespace Dzonny.ILProj
         /// <summary>Gets version of the custom project system</summary>
         /// <returns>Version of custom project system</returns>
         /// <exception cref="ObjectDisposedException">This instance has already been disposed</exception>
+        /// <exception cref="NotSupportedException">The ZIP archive whre zipped custom project system is stored does not support reading.</exception>
+        /// <exception cref="IO.InvalidDataException">
+        ///     The ZIP archive where zipped custom project system is stored is corrupt, and its entries cannot be retrieved. -or-
+        ///     The entry "version.txt" is either missing from the archive or is corrupt and cannot be read. -or-
+        ///     The entry "version.txt" has been compressed by using a compression method that is not supported.
+        /// </exception>
+        /// <exception cref="FormatException">
+        ///     Version text stored in "version.txt" entry of ZIP file containing zipped custom project system has fewer than two or more than four version components. -or-
+        ///     At least one component in of version text is not an integer.
+        /// </exception>
+        /// <exception cref="OverflowException">
+        ///     At least one component in version text stored in "version.txt" entry of ZIP file containing zipped custom project system represents a number that is greater than <see cref="Int32.MaxValue"/>.
+        /// </exception>
         public override Version GetVersion()
         {
             if (disposed) throw new ObjectDisposedException(nameof(ZippedCustomProjectSystem));
@@ -124,7 +197,14 @@ namespace Dzonny.ILProj
             using (var entry = zip.GetEntry("version.txt").Open())
             using (var r = new IO.StreamReader(entry))
                 version = r.ReadToEnd();
-            return Version.Parse(version);
+            try
+            {
+                return Version.Parse(version);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new FormatException(ex.Message, ex);
+            }
         }
 
         /// <summary>Extracts all files and foilders of the zipped ustom project system to given directory</summary>
