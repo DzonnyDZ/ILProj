@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="ILProj.ProjectType..42d3ff42-1612-4f1a-9e53-23cb72f33ae8" Version="0.0" Language="en-US" Publisher="ILProj.ProjectType" />
+        <Identity Id="ILProj.ProjectType..42d3ff42-1612-4f1a-9e53-23cb72f33ae8" Version="0.1" Language="en-US" Publisher="ILProj.ProjectType" />
         <DisplayName>ILProj VSIX</DisplayName>
         <Description xml:space="preserve">A template for creating a CIL assembler projects. Allows to compile CIL (MSIL) assembler directly form Visual Studio.</Description>
         <MoreInfo>https://github.com/DzonnyDZ/ILProj</MoreInfo>

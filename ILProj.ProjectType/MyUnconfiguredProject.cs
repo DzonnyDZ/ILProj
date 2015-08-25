@@ -35,7 +35,7 @@ namespace Dzonny.ILProj
         /// The file extension used by your project type.
         /// This does not include the leading period.
         /// </summary>
-        internal const string ProjectExtension = "jsnproj";
+        internal const string ProjectExtension = "ilproj";
 
         /// <summary>
         /// A project capability that is present in your project type and none others.

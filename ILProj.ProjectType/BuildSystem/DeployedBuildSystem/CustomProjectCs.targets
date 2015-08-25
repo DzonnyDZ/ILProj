@@ -11,7 +11,7 @@
         <GetFrameworkPath>
             <Output TaskParameter="Path" PropertyName="FrameworkPath" />
         </GetFrameworkPath>
-        <ILAsm Output="$(TargetPath)" Files="@(Compile)" Target="$(OutputType)" TargetCpu="$(Platform)" ILAsmExe="$(FrameworkPath)\jsc.exe" Debug="$(Debug)" 
+        <ILAsm Output="$(TargetPath)" Files="@(Compile)" Target="$(OutputType)" TargetCpu="$(Platform)" ILAsmExe="$(FrameworkPath)\ilasm.exe" Debug="$(Debug)" 
                Quiet="$(Quiet)" NoAutoInherit="$(NoAutoInherit)" Pdb="$(Pdb)" AppContainer="$(AppContainer)" Optimize="$(Optimize)" Fold="$(Fold)" Clock="$(Clock)" Resources="@(EmbeddedResource)"
                Key="$(Key)" SubSystem="$(SubSystem)" Flags="$(Flags)" Alignment="$(Alignment)" Base="$(Base)" Stack="$(Stack)" MetadataVersion="$(MetadataVersion)" MetadataStreamVersion="$(MetadataStreamVersion)"
                PE64="$(PE64)" HighEntropyVirtualAddress="$(HighEntropyVirtualAddress)" NoCorStub="$(NoCorStub)" StripRelocations="$(StripRelocations)" Prefer32Bit="$(Prefer32Bit)"
