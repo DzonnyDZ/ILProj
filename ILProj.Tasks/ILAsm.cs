@@ -1,22 +1,20 @@
 ﻿using System;
 using static System.Globalization.CultureInfo;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Text;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
-using IO = System.IO;
+using Dzonny.VSLangProj;
 
 namespace Dzonny.ILProj
 {
     /// <summary>Wraps CIL compiler (ilasm) as MSBuild task</summary>
-    public class ILAsm : Task
+    public class ILAsm : CommandLineTask
     {
         /// <summary>Gets or sets path to CIL compiler</summary>
         /// <value>By default points to relative path of ilasm.exe depending on ilasm.exe being in PATH</value>
         public string ILAsmExe { get; set; } = "ilasm.exe";
 
-        /// <summary>Gets or sets value indcating if progress from assemly is supressed</summary>
+        /// <summary>Gets or sets value indicating if progress from assembly is suppressed</summary>
         /// <value>True not to report progress. False to report progress</value>
         [DefaultValue(false)]
         public bool Quiet { get; set; }
@@ -25,7 +23,7 @@ namespace Dzonny.ILProj
         [DefaultValue(false)]
         public bool NoAutoInherit { get; set; }
 
-        /// <summary>Gets or sets type of targe binary</summary>
+        /// <summary>Gets or sets type of target binary</summary>
         /// <value>
         /// <list type="table">
         /// <listheader><term>Value</term><description>Description</description></listheader>
@@ -36,16 +34,16 @@ namespace Dzonny.ILProj
         [DefaultValue("EXE")]
         public string Target { get; set; } = "EXE";
 
-        /// <summary>Gets or sets value indicating if PDB is generated /even without debug infor tracking)</summary>
+        /// <summary>Gets or sets value indicating if PDB is generated /even without debug info tracking)</summary>
         [DefaultValue(false)]
         public bool Pdb { get; set; }
 
-        /// <summary>Gets or sets value indicating if AppContainer exe or dll is created</summary>
+        /// <summary>Gets or sets value indicating if AppContainer exe or DLL is created</summary>
         [DefaultValue(false)]
         public bool AppContainer { get; set; }
 
         private DebugOption debug;
-        /// <summary>Gets or sets option of generationg debugging information</summary>
+        /// <summary>Gets or sets option of generation debugging information</summary>
         /// <value>One of <see cref="DebugOption"/> values</value>
         [DefaultValue(DebugOption.NoDebug)]
         public string Debug
@@ -75,7 +73,7 @@ namespace Dzonny.ILProj
         public string Output { get; set; }
 
         /// <summary>Gets or sets name and path of file or name of key source to compile with strong name</summary>
-        /// <value>Provide either path or name of file, or prefixed with at (@) privete key source</value>
+        /// <value>Provide either path or name of file, or prefixed with at (@) private key source</value>
         [DefaultValue(null)]
         public string Key { get; set; }
 
@@ -87,7 +85,7 @@ namespace Dzonny.ILProj
         /// <summary>Gets or sets subsystem value in the NT optional header</summary>
         public int SubSystem { get { return subsystem ?? 0; } set { subsystem = value; } }
 
-        /// <summary>Gets or sest subsystem version in the NT optional header</summary>
+        /// <summary>Gets or sets subsystem version in the NT optional header</summary>
         /// <value>Version in format &lt;int>.&lt;int></value>
         public string SubsystemVersion { get; set; }
 
@@ -117,7 +115,7 @@ namespace Dzonny.ILProj
         [DefaultValue(null)]
         public string MetadataStreamVersion { get; set; }
 
-        /// <summary>Gets or sets value indicating wether to create 64-bit image (PE32+)</summary>
+        /// <summary>Gets or sets value indicating whether to create 64-bit image (PE32+)</summary>
         [DefaultValue(false)]
         public bool PE64 { get; set; }
 
@@ -139,7 +137,7 @@ namespace Dzonny.ILProj
         /// <summary>Gets or sets value indicating that 36BitPreffered image (PE32) is created</summary>
         public bool Prefer32Bit { get; set; }
 
-        /// <summary>Gets or sets source files to create edit-and-continue delats from</summary>
+        /// <summary>Gets or sets source files to create edit-and-continue deltas from</summary>
         [DefaultValue(null)]
         public string[] EditAndContinueDeltas { get; set; }
 
@@ -147,119 +145,90 @@ namespace Dzonny.ILProj
         [DefaultValue(null), Required]
         public string[] Files { get; set; }
 
-        /// <summary>Executes a task.</summary>
-        /// <returns>true if the task executed successfully; otherwise, false.</returns>
-        public override bool Execute()
+        /// <summary>Gets command line for the process</summary>
+        /// <returns>Command line arguments</returns>
+        protected override string GetCommandLine()
         {
-            using (var ilasm = new Process())
-            {
-                ilasm.StartInfo.UseShellExecute = false;
-                ilasm.StartInfo.FileName = ILAsmExe;
-                StringBuilder cmd = new StringBuilder();
+            StringBuilder cmd = new StringBuilder();
 
-                cmd.Append("/NOLOGO ");
+            cmd.Append("/NOLOGO ");
 
-                if (Quiet) cmd.Append("/QUIET ");
+            if (Quiet) cmd.Append("/QUIET ");
 
-                if (NoAutoInherit) cmd.Append("/NOAUTOINHERIT ");
+            if (NoAutoInherit) cmd.Append("/NOAUTOINHERIT ");
 
-                if (!string.IsNullOrEmpty(Target)) cmd.Append($"/{Target} ");
+            if (!string.IsNullOrEmpty(Target)) cmd.Append($"/{Target} ");
 
-                if (Pdb) cmd.Append("/PDB ");
+            if (Pdb) cmd.Append("/PDB ");
 
-                if (AppContainer) cmd.Append("/APPCONTAINER ");
+            if (AppContainer) cmd.Append("/APPCONTAINER ");
 
-                if (debug == DebugOption.Debug) cmd.Append("/DEBUG ");
-                else if (debug != DebugOption.NoDebug) cmd.Append($"/DEBUG={debug.ToString().ToUpperInvariant()} ");
+            if (debug == DebugOption.Debug) cmd.Append("/DEBUG ");
+            else if (debug != DebugOption.NoDebug) cmd.Append($"/DEBUG={debug.ToString().ToUpperInvariant()} ");
 
-                if (Optimize) cmd.Append("/OPTIMIZE ");
+            if (Optimize) cmd.Append("/OPTIMIZE ");
 
-                if (Fold) cmd.Append("/FOLD ");
+            if (Fold) cmd.Append("/FOLD ");
 
-                if (Clock) cmd.Append("/CLOCK ");
+            if (Clock) cmd.Append("/CLOCK ");
 
-                if (Resources != null)
-                    foreach (var r in Resources)
-                        cmd.Append($"/RESOURCE=\"{r}\" ");
+            if (Resources != null)
+                foreach (var r in Resources)
+                    cmd.Append($"/RESOURCE=\"{r}\" ");
 
-                if (!string.IsNullOrEmpty(Output))
-                    cmd.Append($"/OUTPUT=\"{Output}\" ");
+            if (!string.IsNullOrEmpty(Output))
+                cmd.Append($"/OUTPUT=\"{Output}\" ");
 
-                if (Key?.StartsWith("@") ?? false)
-                    cmd.Append($"/KEY=@\"{Key.Substring(1)}\" ");
-                else if (!string.IsNullOrEmpty(Key))
-                    cmd.Append($"/KEY=\"{Key}\" ");
+            if (Key?.StartsWith("@") ?? false)
+                cmd.Append($"/KEY=@\"{Key.Substring(1)}\" ");
+            else if (!string.IsNullOrEmpty(Key))
+                cmd.Append($"/KEY=\"{Key}\" ");
 
-                if (Includes != null)
-                    foreach (var i in Includes)
-                        cmd.Append($"/INCLUDE=\"{i}\" ");
+            if (Includes != null)
+                foreach (var i in Includes)
+                    cmd.Append($"/INCLUDE=\"{i}\" ");
 
-                if (subsystem.HasValue) cmd.Append(((FormattableString)$"/SUBSYSTEM={SubSystem} ").ToString(InvariantCulture));
+            if (subsystem.HasValue) cmd.Append(((FormattableString)$"/SUBSYSTEM={SubSystem} ").ToString(InvariantCulture));
 
-                if (!string.IsNullOrEmpty(SubsystemVersion)) cmd.Append($"/SSVER=\"{SubsystemVersion}\" ");
+            if (!string.IsNullOrEmpty(SubsystemVersion)) cmd.Append($"/SSVER=\"{SubsystemVersion}\" ");
 
-                if (flags.HasValue) cmd.Append(((FormattableString)$"/FLAGS={Flags} ").ToString(InvariantCulture));
+            if (flags.HasValue) cmd.Append(((FormattableString)$"/FLAGS={Flags} ").ToString(InvariantCulture));
 
-                if (alignment.HasValue) cmd.Append(((FormattableString)$"/ALIGNMENT={alignment} ").ToString(InvariantCulture));
+            if (alignment.HasValue) cmd.Append(((FormattableString)$"/ALIGNMENT={alignment} ").ToString(InvariantCulture));
 
-                if (@base.HasValue) cmd.Append(((FormattableString)$"/BASE={Base} ").ToString(InvariantCulture));
+            if (@base.HasValue) cmd.Append(((FormattableString)$"/BASE={Base} ").ToString(InvariantCulture));
 
-                if (stack.HasValue) cmd.Append(((FormattableString)$"/STACK={Stack} ").ToString(InvariantCulture));
+            if (stack.HasValue) cmd.Append(((FormattableString)$"/STACK={Stack} ").ToString(InvariantCulture));
 
-                if (!string.IsNullOrEmpty(MetadataVersion)) cmd.Append($"/MDV=\"{MetadataVersion}\" ");
+            if (!string.IsNullOrEmpty(MetadataVersion)) cmd.Append($"/MDV=\"{MetadataVersion}\" ");
 
-                if (!string.IsNullOrEmpty(MetadataStreamVersion)) cmd.Append($"/MSV=\"{MetadataStreamVersion}\" ");
+            if (!string.IsNullOrEmpty(MetadataStreamVersion)) cmd.Append($"/MSV=\"{MetadataStreamVersion}\" ");
 
-                if (PE64) cmd.Append("/PE64 ");
+            if (PE64) cmd.Append("/PE64 ");
 
-                if (HighEntropyVirtualAddress) cmd.Append("/HIGHENTROPYVA ");
+            if (HighEntropyVirtualAddress) cmd.Append("/HIGHENTROPYVA ");
 
-                if (NoCorStub) cmd.Append("/NOCORSTUB ");
+            if (NoCorStub) cmd.Append("/NOCORSTUB ");
 
-                if (StripRelocations) cmd.Append("/STRIPRELOC ");
+            if (StripRelocations) cmd.Append("/STRIPRELOC ");
 
-                if (!string.IsNullOrEmpty(TargetCpu)) cmd.Append($"/{TargetCpu} ");
+            if (!string.IsNullOrEmpty(TargetCpu)) cmd.Append($"/{TargetCpu} ");
 
-                if (Prefer32Bit) cmd.Append("/32BITPREFERRED ");
+            if (Prefer32Bit) cmd.Append("/32BITPREFERRED ");
 
-                if (EditAndContinueDeltas != null)
-                    foreach (var δ in EditAndContinueDeltas)
-                        cmd.Append($"/ENC=\"{δ}\" ");
+            if (EditAndContinueDeltas != null)
+                foreach (var δ in EditAndContinueDeltas)
+                    cmd.Append($"/ENC=\"{δ}\" ");
 
-                if (Files != null)
-                    foreach (var file in Files)
-                        cmd.Append($"\"{file}\" ");
+            if (Files != null)
+                foreach (var file in Files)
+                    cmd.Append($"\"{file}\" ");
 
-                ilasm.StartInfo.Arguments = cmd.ToString();
-
-                Log.LogCommandLine(ilasm.StartInfo.FileName + " " + ilasm.StartInfo.Arguments);
-                Log.LogMessage($"Running {ilasm.StartInfo.FileName} {ilasm.StartInfo.Arguments}");
-
-                ilasm.StartInfo.RedirectStandardError = true;
-                ilasm.StartInfo.RedirectStandardOutput = true;
-                ilasm.ErrorDataReceived += (sender, e) => { if (e.Data != null) Log.LogError(e.Data); };
-                ilasm.OutputDataReceived += (sender, e) =>
-                {
-                    if (e.Data != null)
-                    {
-                        if (e.Data.IndexOf("error", StringComparison.InvariantCultureIgnoreCase) >= 0)
-                            Log.LogError(e.Data);
-                        else if (e.Data.IndexOf("warning", StringComparison.InvariantCultureIgnoreCase) >= 0)
-                            Log.LogWarning(e.Data);
-                        else Log.LogMessage(e.Data);
-                    }
-                };
-                ilasm.Start();
-                ilasm.BeginErrorReadLine();
-                ilasm.BeginOutputReadLine();
-                ilasm.WaitForExit();
-                if (ilasm.ExitCode != 0)
-                    Log.LogError($"Process {System.IO.Path.GetFileName(ilasm.StartInfo.FileName)} {ilasm.StartInfo.Arguments} exited with code {ilasm.ExitCode}");
-                else
-                    Log.LogMessage($"Process {System.IO.Path.GetFileName(ilasm.StartInfo.FileName)} {ilasm.StartInfo.Arguments} exited with code {ilasm.ExitCode}");
-                return ilasm.ExitCode == 0;
-            }
+            return cmd.ToString();
         }
+
+        /// <summary>Gets path to EXE file to launch</summary>
+        protected override string Exe => ILAsmExe;
     }
 
     /// <summary>Options for generating debug info</summary>
