@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿extern alias shell15;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: Microsoft.VisualStudio.Shell.ProvideCodeBase(CodeBase = @"$PackageFolder$\Dzonny.ILProj.dll")]
+[assembly: shell15::Microsoft.VisualStudio.Shell.ProvideCodeBase(CodeBase = @"$PackageFolder$\Dzonny.ILProj.dll")]
 
 [assembly: AssemblyTitle("ILProj.ProjectType")]
 [assembly: AssemblyDescription("CIL project type for Visual Studio")]
