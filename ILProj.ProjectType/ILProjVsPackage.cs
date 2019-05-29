@@ -1,14 +1,4 @@
-﻿/***************************************************************************
-
-Copyright (c) Microsoft Corporation. All rights reserved.
-This code is licensed under the Visual Studio SDK license terms.
-THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-
-***************************************************************************/
-extern alias shell15;
+﻿extern alias shell15;
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -25,12 +15,12 @@ namespace Dzonny.ILProj
     /// or localized resources for the strings that appear in the New Project and Open Project dialogs.
     /// Creating project extensions or project types does not actually require a VSPackage.
     /// </remarks>
-    [PackageRegistration(UseManagedResourcesOnly = true)]
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Description("CIL project system")]
     [Guid(PackageGuid)]
-    [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
-    [ProvideAutoLoad(UIContextGuids80.NoSolution)]
-    public sealed class ILProjProjectSystemPackage : ProjectSystemPackage
+    [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
+    public sealed class ILProjProjectSystemPackage : AsyncProjectSystemPackage
     {
         /// <summary>CTor - creates a new instance of the <see cref="ILProjProjectSystemPackage"/> class</summary>
         public ILProjProjectSystemPackage() : base("ILProj") { }
