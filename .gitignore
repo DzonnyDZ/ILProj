@@ -4,3 +4,6 @@ obj
 /packages
 *.user
 *.delme
+/ILProj.ProjectType/BuildSystem/DeployedBuildSystem/*.dll
+/ILProj.ProjectType/BuildSystem/DeployedBuildSystem/*.pdb
+/ILProj.ProjectType/BuildSystem/DeployedBuildSystem/*.xml

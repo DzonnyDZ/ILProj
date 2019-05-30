@@ -74,17 +74,17 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\VSLangProj.Shared\VSLangProj.Shared\VSLangProj.Shared.csproj">
-      <Project>{600a75f3-d6bb-4cb1-bcfb-79928fd01115}</Project>
-      <Name>VSLangProj.Shared</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\Key.snk">
       <Link>Key.snk</Link>
     </None>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\VSLangProj.Shared\VSLangProj.Shared\VSLangProj.Shared.csproj">
+      <Project>{600a75f3-d6bb-4cb1-bcfb-79928fd01115}</Project>
+      <Name>VSLangProj.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">

@@ -23,6 +23,7 @@
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="ILProj.ProjectType" Path="|ILProj.ProjectType;PkgdefProjectOutputGroup|" />
         <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="ILProj.ProjectTemplate" d:TargetPath="|ILProj.ProjectTemplate;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates" />
         <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="ILProj.Tasks" Path="|ILProj.Tasks|" AssemblyName="|ILProj.Tasks;AssemblyName|" />
+        <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="VSLangProj.Shared" Path="|VSLangProj.Shared|" AssemblyName="|VSLangProj.Shared;AssemblyName|" />
     </Assets>
     <Prerequisites>
         <Prerequisite Id="Microsoft.Component.MSBuild" Version="[16.0,17.0)" DisplayName="MSBuild" />

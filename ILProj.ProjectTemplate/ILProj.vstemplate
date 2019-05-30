@@ -11,6 +11,9 @@
         <CreateNewFolder>true</CreateNewFolder>
         <DefaultName>ILProj</DefaultName>
         <ProvideDefaultName>true</ProvideDefaultName>
+        <LanguageTag>CIL</LanguageTag>
+        <ProjectTypeTag>Console</ProjectTypeTag>
+        <ProjectTypeTag>Library</ProjectTypeTag>
     </TemplateData>
     <TemplateContent>
         <Project File="ILProj.ilproj" ReplaceParameters="true">
